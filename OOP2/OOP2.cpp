@@ -36,8 +36,8 @@ public:
         printf("%d, %d, %d\n", side, perimeter, area);
     }
 
-    void increase_side() {
-        side = side + 2;
+    void increase_side(int add) {
+        side = side + add;
         perimeter = side * 4;
         area = side * side;
     }
@@ -68,6 +68,7 @@ public:
     }
     ViewedSquare(int side, std::vector<std::vector<std::string>> sqr) : Square(side) {  // Конструктор с параметрами
         printf("ViewedSquare(int side)\n");
+        this->side = side;
         this->sqr = sqr;
     }
     ViewedSquare(const ViewedSquare& other) {  // Конструктор копирования
@@ -82,7 +83,6 @@ public:
     ~ViewedSquare () {  // Деструктор
         printf("~ViewedSquare(%d)\n", which_constructor);
         printf("%d, %d, %d\n", side, perimeter, area);
-        delete ViewedSquare;
     }
 
     void View() {
@@ -119,6 +119,62 @@ public:
 
 };
 
+class HowMuch{
+private:
+    Square k1;
+    Square k2;
+public:
+    HowMuch() {  // Конструктор
+        printf("HowMuch()\n");
+        k1.reset_side();
+        k2.reset_side();
+    }
+    HowMuch(int side) {  // Конструктор с параметрами
+        printf("HowMuch(int side)\n");
+        k1 = Square(side);
+        k2 = Square(side);
+    }
+    HowMuch(const HowMuch& other) {  // Конструктор копирования
+        printf("HowMuch(const HowMuch &other)\n");
+        k1 = other.k1;
+        k2 = other.k2;
+    }
+    ~HowMuch() {  // Деструктор
+        //printf("%d, %d, %d\n", side, perimeter, area);
+        printf("~HowMuch(?)\n");
+    }
+
+};
+
+class HowMuch2 {
+private:
+    Square* k1;
+    Square* k2;
+public:
+    HowMuch2() {  // Конструктор
+        printf("HowMuch2()\n");
+        k1 = new Square;
+        k2 = new Square;
+    }
+    HowMuch2(int side) {  // Конструктор с параметрами
+        printf("HowMuch2(int side)\n");
+        k1 = new Square(side);
+        k2 = new Square(side);
+    }
+    HowMuch2(const HowMuch2& other) {  // Конструктор копирования
+        printf("HowMuch2(const HowMuch2 &other)\n");
+        k1 = new Square(*(other.k1));
+        k2 = new Square(*(other.k2));
+    }
+    ~HowMuch2() {  // Деструктор
+        //printf("%d, %d, %d\n", side, perimeter, area);
+        printf("~HowMuch2(?)\n");
+        delete k1;
+        delete k2;
+    }
+
+};
+
 int main()
 {
     setlocale(LC_ALL, "Russian");
@@ -126,7 +182,7 @@ int main()
     Square First;
     Square Second(5);
     Square Third(Second);
-    First.increase_side();
+    First.increase_side(3);
     Second.reset_side();
     _getch();
     printf("------Динамически создаваемые объекты------\n");
@@ -145,7 +201,7 @@ int main()
     ViewedSquare* p1 = new ViewedSquare();
     ViewedSquare* p2 = new ViewedSquare(5, sqr);
     ViewedSquare* p3 = new ViewedSquare(*p2);
-    p2->increase_side();
+    p2->increase_side(3);
     p2->View();
     p3->View();
     p3->reset_side();
@@ -161,11 +217,22 @@ int main()
     // У obj есть методы только базового класса
     ViewedSquare* obj2 = new ViewedSquare(6, sqr);
     // У obj2 есть также методы класса потомка
-    delete obj;  // Не вызывается деструктор класса потомка!?
+    delete (ViewedSquare*)obj;  // Привел к типу указателя, для которого была выделена память 
     delete obj2;
 
-    printf("------Композиция------\n");
+    printf("------Композиция(Объектом класса А является другой объект класса B)------\n");
 
+    HowMuch hey1;
+    HowMuch hey2;
+
+    printf("------Композиция(Объект класса А является !указатель! на другой объект класса B)------\n");
+
+    HowMuch2* ob1 = new HowMuch2;
+    HowMuch2* ob2 = new HowMuch2(*ob1);
+    delete ob1;
+    delete ob2;
+
+    printf("------(Деструкторы)Статически создаваемые объекты------\n");
 
 
     return 0;
